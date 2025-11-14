@@ -22,8 +22,9 @@ final class ChewSense_DataCollectionAndLabelingUITestsLaunchTests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
 
-        // Insert steps here to perform after app launch but before taking a screenshot,
-        // such as logging into a test account or navigating somewhere in the app
+        // Wait for the main UI to be visible.
+        let navBar = app.navigationBars["Recordings"]
+        XCTAssertTrue(navBar.waitForExistence(timeout: 5.0), "Recordings screen should be visible on launch.")
 
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "Launch Screen"
