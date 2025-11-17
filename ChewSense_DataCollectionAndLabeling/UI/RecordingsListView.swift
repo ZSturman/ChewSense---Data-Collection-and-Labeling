@@ -78,6 +78,7 @@ struct RecordingsListView: View {
                             }
                         }
                     }
+                    .accessibilityIdentifier("emptyStateNewButton")
                 }
             } else {
                 List(selection: $selectedFolder) {

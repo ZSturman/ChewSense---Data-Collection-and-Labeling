@@ -125,6 +125,7 @@ struct CameraScreen: View {
                                 .foregroundColor(.white)
                                 .clipShape(Capsule())
                         }
+                        .accessibilityIdentifier("eatingButton")
                         .disabled(!controller.isMotionAvailable)
 
                         Button(action: { controller.start(withLabel: false) }) {
@@ -136,6 +137,7 @@ struct CameraScreen: View {
                                 .foregroundColor(.white)
                                 .clipShape(Capsule())
                         }
+                        .accessibilityIdentifier("notEatingButton")
                         .disabled(!controller.isMotionAvailable)
                     }
                 }

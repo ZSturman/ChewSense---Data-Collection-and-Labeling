@@ -45,6 +45,24 @@ final class ChewSense_DataCollectionAndLabelingUITests: XCTestCase {
         let newButton = app.buttons["New"]
         XCTAssertTrue(newButton.exists, "New button should exist in the empty-state view.")
     }
+    
+    @MainActor
+    func testEmptyStateNewButtonNavigatesToCameraScreen() throws {
+        app.launch()
+
+        let emptyMessage = app.staticTexts["No recordings found."]
+        XCTAssertTrue(emptyMessage.waitForExistence(timeout: 5.0), "Empty-state message should be visible on first launch.")
+
+        let emptyStateNewButton = app.buttons["emptyStateNewButton"]
+        XCTAssertTrue(emptyStateNewButton.waitForExistence(timeout: 5.0), "Empty-state New button should exist in the empty-state view.")
+        emptyStateNewButton.tap()
+
+        let cameraPreviewLabel = app.staticTexts["Camera preview"]
+        let connectAirPodsLabel = app.staticTexts["Connect AirPods to begin"]
+
+        let didReachCameraScreen = cameraPreviewLabel.waitForExistence(timeout: 5.0) || connectAirPodsLabel.exists
+        XCTAssertTrue(didReachCameraScreen, "Tapping the empty-state New button should navigate to the camera screen.")
+    }
 
     // MARK: - Navigation to camera screen
 
@@ -52,12 +70,10 @@ final class ChewSense_DataCollectionAndLabelingUITests: XCTestCase {
     func testTappingNewNavigatesToCameraScreen() throws {
         app.launch()
 
-        let newButton = app.buttons["New"]
+        let newButton = app.navigationBars["Recordings"].buttons["New"]
         XCTAssertTrue(newButton.waitForExistence(timeout: 5.0), "New button should appear on the initial screen.")
         newButton.tap()
 
-        // On the camera screen we either see the placeholder 'Camera preview'
-        // (when no capture session is configured yet) or the hint label to connect AirPods.
         let cameraPreviewLabel = app.staticTexts["Camera preview"]
         let connectAirPodsLabel = app.staticTexts["Connect AirPods to begin"]
 
@@ -65,19 +81,37 @@ final class ChewSense_DataCollectionAndLabelingUITests: XCTestCase {
         XCTAssertTrue(didReachCameraScreen, "Tapping New should navigate to the camera screen.")
     }
 
-    // MARK: - Camera screen state when motion is unavailable
-
     @MainActor
     func testCameraScreenShowsConnectAirPodsHintWhenMotionUnavailable() throws {
         app.launch()
 
-        let newButton = app.buttons["New"]
+        let newButton = app.navigationBars["Recordings"].buttons["New"]
         XCTAssertTrue(newButton.waitForExistence(timeout: 5.0), "New button should appear on the initial screen.")
         newButton.tap()
 
-        // In the simulator we generally do not have headphone motion, so the hint should appear.
         let connectAirPodsLabel = app.staticTexts["Connect AirPods to begin"]
         XCTAssertTrue(connectAirPodsLabel.waitForExistence(timeout: 5.0), "Camera screen should prompt the user to connect AirPods when motion data is unavailable.")
+    }
+    
+    @MainActor
+    func testCameraScreenDisablesButtonsWhenMotionUnavailable() throws {
+        app.launch()
+
+        let newButton = app.navigationBars["Recordings"].buttons["New"]
+        XCTAssertTrue(newButton.waitForExistence(timeout: 5.0), "New button should appear on the initial screen.")
+        newButton.tap()
+
+        let connectAirPodsLabel = app.staticTexts["Connect AirPods to begin"]
+        XCTAssertTrue(connectAirPodsLabel.waitForExistence(timeout: 5.0), "Camera screen should prompt the user to connect AirPods when motion data is unavailable.")
+
+        let eatingButton = app.buttons["eatingButton"]
+        let notEatingButton = app.buttons["notEatingButton"]
+
+        XCTAssertTrue(eatingButton.exists, "Eating button should exist on the camera screen.")
+        XCTAssertTrue(notEatingButton.exists, "Not Eating button should exist on the camera screen.")
+
+        XCTAssertFalse(eatingButton.isEnabled, "Eating button should be disabled when motion is unavailable.")
+        XCTAssertFalse(notEatingButton.isEnabled, "Not Eating button should be disabled when motion is unavailable.")
     }
 
     // MARK: - Launch performance
